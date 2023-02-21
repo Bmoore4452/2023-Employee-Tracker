@@ -29,15 +29,19 @@ const start = () => {
           "Add Role",
           "View All Departments",
           "Add Department",
+          "Update Employee Role",
         ],
       },
     ])
     .then((answer) => {
       if (answer.start === "View All Employees") {
-        db.query("SELECT * FROM employee", function (err, results) {
-          console.table(results);
-          start();
-        });
+        db.query(
+          "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary AS salary, CONCAT(employee.first_name,' ' ,employee.last_name) AS manager FROM employee JOIN role ON role.department_id = employee.id JOIN department ON department.id = role.id",
+          function (err, results) {
+            console.table(results);
+            start();
+          }
+        );
       } else if (answer.start === "View All Roles") {
         db.query("SELECT * FROM role", function (err, results) {
           console.table(results);
@@ -54,6 +58,8 @@ const start = () => {
         addRoleTitle();
       } else if (answer.start === "Add Employees") {
         addEmpFirst();
+      } else if (answer.start === "Update Employee Role") {
+        updateRole();
       }
     });
 };
@@ -78,6 +84,7 @@ const addDep = () => {
       }
     });
 };
+
 const addRoleTitle = () => {
   inquirer
     .prompt([
@@ -207,9 +214,100 @@ const selectEmpRole = (name) => {
       },
     ])
     .then((answer) => {
-      empArr.push(answer.selectEmpRole);
-      console.log(empArr);
+      db.query(
+        `SELECT id FROM role WHERE title="${answer.selectEmpRole}"`,
+        function (err, results) {
+          empArr.push(results[0].id);
+          console.log(empArr);
+        }
+      );
+      getManager();
     });
+};
+
+const getManager = () => {
+  db.query(
+    `SELECT first_name, last_name FROM employee WHERE manager_id IS NOT NULL`,
+    function (err, results) {
+      const managers = [];
+      managers.push("None");
+      for (let index = 0; index < results.length; index++) {
+        managers.push(`${results[index].first_name}`);
+      }
+      selectManager(managers);
+    }
+  );
+};
+
+const selectManager = (manager) => {
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        name: "selectManager",
+        message: "Who is the employee's manager?",
+        choices: manager,
+      },
+    ])
+    .then((answer) => {
+      if (answer.selectManager !== "None") {
+        db.query(
+          `SELECT manager_id FROM employee WHERE first_name="${answer.selectManager}"`,
+          function (err, results) {
+            empArr.push(results[0].manager_id);
+            console.log(empArr);
+            let empAdd = `INSERT INTO employee (first_name,last_name,role_id,manager_id) VALUES ("${empArr[0]}","${empArr[1]}","${empArr[2]}","${empArr[3]}")`;
+            db.query(empAdd);
+            start();
+          }
+        );
+      }
+    });
+};
+
+const updateRole = () => {
+  const employee = [];
+  const roleArr2 = [];
+  let empToUpdate;
+  db.query(
+    `SELECT first_name, last_name FROM employee`,
+    function (err, results) {
+      for (let index = 0; index < results.length; index++) {
+        employee.push(
+          results[index].first_name + " " + results[index].last_name
+        );
+      }
+      console.log(employee);
+      inquirer
+        .prompt([
+          {
+            type: "list",
+            name: "updateRole",
+            message: "Which employees's role do you want to update?",
+            choices: employee,
+          },
+        ])
+        .then((answer) => {
+          empToUpdate = answer.updateRole;
+          db.query(`SELECT title FROM role`, function (err, results) {
+            for (let i = 0; i < results.length; i++) {
+              roleArr2.push(results[i].title);
+            }
+            console.log(roleArr2);
+          });
+        })
+        .then(() => {
+          inquirer.prompt([
+            {
+              type: "list",
+              name: "updateRole",
+              message: "Which employees's role do you want to update?",
+              choices: roleArr2,
+            },
+          ]);
+        });
+    }
+  );
 };
 
 start();
