@@ -1,40 +1,40 @@
-const inquirer = require("inquirer");
-const mysql = require("mysql2");
-const cTable = require("console.table");
+const inquirer = require('inquirer');
+const mysql = require('mysql2');
+const cTable = require('console.table');
 
 const roleArr = [];
 const empArr = [];
 
 const db = mysql.createConnection(
   {
-    host: "127.0.0.1",
-    user: "root",
-    password: "jacket52",
-    database: "tracker_db",
+    host: '127.0.0.1',
+    user: 'root',
+    password: 'jacket52',
+    database: 'tracker_db',
   },
-  console.log("Connected to the tracker_db database")
+  console.log('Connected to the tracker_db database')
 );
 
 const start = () => {
   inquirer
     .prompt([
       {
-        type: "list",
-        name: "start",
-        message: "What would you like to do?",
+        type: 'list',
+        name: 'start',
+        message: 'What would you like to do?',
         choices: [
-          "View All Employees",
-          "Add Employees",
-          "View All Roles",
-          "Add Role",
-          "View All Departments",
-          "Add Department",
-          "Update Employee Role",
+          'View All Employees',
+          'Add Employees',
+          'View All Roles',
+          'Add Role',
+          'View All Departments',
+          'Add Department',
+          'Update Employee Role',
         ],
       },
     ])
     .then((answer) => {
-      if (answer.start === "View All Employees") {
+      if (answer.start === 'View All Employees') {
         db.query(
           "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary AS salary, CONCAT(employee.first_name,' ' ,employee.last_name) AS manager FROM employee JOIN role ON role.department_id = employee.id JOIN department ON department.id = role.id",
           function (err, results) {
@@ -42,23 +42,23 @@ const start = () => {
             start();
           }
         );
-      } else if (answer.start === "View All Roles") {
-        db.query("SELECT * FROM role", function (err, results) {
+      } else if (answer.start === 'View All Roles') {
+        db.query('SELECT * FROM role', function (err, results) {
           console.table(results);
           start();
         });
-      } else if (answer.start === "View All Departments") {
-        db.query("SELECT * FROM department", function (err, results) {
+      } else if (answer.start === 'View All Departments') {
+        db.query('SELECT * FROM department', function (err, results) {
           console.table(results);
           start();
         });
-      } else if (answer.start === "Add Department") {
+      } else if (answer.start === 'Add Department') {
         addDep();
-      } else if (answer.start === "Add Role") {
+      } else if (answer.start === 'Add Role') {
         addRoleTitle();
-      } else if (answer.start === "Add Employees") {
+      } else if (answer.start === 'Add Employees') {
         addEmpFirst();
-      } else if (answer.start === "Update Employee Role") {
+      } else if (answer.start === 'Update Employee Role') {
         updateRole();
       }
     });
@@ -68,13 +68,13 @@ const addDep = () => {
   inquirer
     .prompt([
       {
-        type: "input",
-        name: "addDepart",
-        message: "What is the name of the department?",
+        type: 'input',
+        name: 'addDepart',
+        message: 'What is the name of the department?',
       },
     ])
     .then((answer) => {
-      if (answer.addDepart !== "") {
+      if (answer.addDepart !== '') {
         db.query(
           `INSERT INTO department (name) VALUES ("${answer.addDepart}")`,
           function () {
@@ -89,13 +89,13 @@ const addRoleTitle = () => {
   inquirer
     .prompt([
       {
-        type: "input",
-        name: "addRoleTitle",
-        message: "What is the name of the role?",
+        type: 'input',
+        name: 'addRoleTitle',
+        message: 'What is the name of the role?',
       },
     ])
     .then((answer) => {
-      if (answer.addRoleTitle !== "") {
+      if (answer.addRoleTitle !== '') {
         const roleTite = answer.addRoleTitle;
         // db.query(`INSERT INTO role (title) VALUES ("${answer.addRoleTitle}")`);
         roleArr.push(roleTite);
@@ -109,13 +109,13 @@ const addRoleSalary = () => {
   inquirer
     .prompt([
       {
-        type: "input",
-        name: "addRoleSalary",
-        message: "What is the salary of the role?",
+        type: 'input',
+        name: 'addRoleSalary',
+        message: 'What is the salary of the role?',
       },
     ])
     .then((answer) => {
-      if (answer.addRoleSalary !== "") {
+      if (answer.addRoleSalary !== '') {
         const roleSalary = answer.addRoleSalary;
         roleArr.push(roleSalary);
         console.log(roleArr);
@@ -136,9 +136,9 @@ const selectDepart = (name) => {
   inquirer
     .prompt([
       {
-        type: "list",
-        name: "selectDepart",
-        message: "Which department does the role belong to?",
+        type: 'list',
+        name: 'selectDepart',
+        message: 'Which department does the role belong to?',
         choices: name,
       },
     ])
@@ -160,13 +160,13 @@ const addEmpFirst = () => {
   inquirer
     .prompt([
       {
-        type: "input",
-        name: "addEmpFirst",
+        type: 'input',
+        name: 'addEmpFirst',
         message: "What is the Employee's first name?",
       },
     ])
     .then((answer) => {
-      if (answer.addEmpFirst !== "") {
+      if (answer.addEmpFirst !== '') {
         const empFirst = answer.addEmpFirst;
         // db.query(`INSERT INTO role (title) VALUES ("${answer.addRoleTitle}")`);
         empArr.push(empFirst);
@@ -180,13 +180,13 @@ const addEmpLast = () => {
   inquirer
     .prompt([
       {
-        type: "input",
-        name: "addEmpLast",
+        type: 'input',
+        name: 'addEmpLast',
         message: "What is the Employee's last name?",
       },
     ])
     .then((answer) => {
-      if (answer.addEmpLast !== "") {
+      if (answer.addEmpLast !== '') {
         const empLast = answer.addEmpLast;
         empArr.push(empLast);
         console.log(empArr);
@@ -207,9 +207,9 @@ const selectEmpRole = (name) => {
   inquirer
     .prompt([
       {
-        type: "list",
-        name: "selectEmpRole",
-        message: "Which department does the role belong to?",
+        type: 'list',
+        name: 'selectEmpRole',
+        message: 'Which department does the role belong to?',
         choices: name,
       },
     ])
@@ -230,7 +230,7 @@ const getManager = () => {
     `SELECT first_name, last_name FROM employee WHERE manager_id IS NOT NULL`,
     function (err, results) {
       const managers = [];
-      managers.push("None");
+      managers.push('None');
       for (let index = 0; index < results.length; index++) {
         managers.push(`${results[index].first_name}`);
       }
@@ -243,14 +243,14 @@ const selectManager = (manager) => {
   inquirer
     .prompt([
       {
-        type: "list",
-        name: "selectManager",
+        type: 'list',
+        name: 'selectManager',
         message: "Who is the employee's manager?",
         choices: manager,
       },
     ])
     .then((answer) => {
-      if (answer.selectManager !== "None") {
+      if (answer.selectManager !== 'None') {
         db.query(
           `SELECT manager_id FROM employee WHERE first_name="${answer.selectManager}"`,
           function (err, results) {
@@ -274,15 +274,15 @@ const updateRole = () => {
     function (err, results) {
       for (let index = 0; index < results.length; index++) {
         employee.push(
-          results[index].first_name + " " + results[index].last_name
+          results[index].first_name + ' ' + results[index].last_name
         );
       }
       console.log(employee);
       inquirer
         .prompt([
           {
-            type: "list",
-            name: "updateRole",
+            type: 'list',
+            name: 'updateRole',
             message: "Which employees's role do you want to update?",
             choices: employee,
           },
@@ -293,21 +293,41 @@ const updateRole = () => {
             for (let i = 0; i < results.length; i++) {
               roleArr2.push(results[i].title);
             }
-            console.log(roleArr2);
+            updateChosen(empToUpdate, roleArr2);
           });
-        })
-        .then(() => {
-          inquirer.prompt([
-            {
-              type: "list",
-              name: "updateRole",
-              message: "Which employees's role do you want to update?",
-              choices: roleArr2,
-            },
-          ]);
         });
     }
   );
+};
+
+updateChosen = (chosen, roles) => {
+  inquirer
+    .prompt([
+      {
+        type: 'list',
+        name: 'chosen',
+        message: 'Which role would you like to update',
+        choices: roles,
+      },
+    ])
+    .then((answer) => {
+      console.log(answer);
+      console.log(chosen.split(' ', 2));
+      const pick = chosen.split(' ', 2);
+      console.log(pick[0]);
+      db.query(
+        `SELECT id FROM role WHERE title ='${answer.chosen}'`,
+        function (err, results) {
+          db.query(
+            `UPDATE employee SET role_id='${results[0].id}' WHERE first_name='${pick[0]}'`,
+            function (err, results2) {
+              return results2
+            }
+          );
+        }
+      );
+      start();
+    });
 };
 
 start();
