@@ -300,7 +300,7 @@ const updateRole = () => {
   );
 };
 
-updateChosen = (chosen, roles) => {
+const updateChosen = (chosen, roles) => {
   inquirer
     .prompt([
       {
@@ -311,17 +311,15 @@ updateChosen = (chosen, roles) => {
       },
     ])
     .then((answer) => {
-      console.log(answer);
-      console.log(chosen.split(' ', 2));
       const pick = chosen.split(' ', 2);
-      console.log(pick[0]);
+
       db.query(
         `SELECT id FROM role WHERE title ='${answer.chosen}'`,
         function (err, results) {
           db.query(
             `UPDATE employee SET role_id='${results[0].id}' WHERE first_name='${pick[0]}'`,
             function (err, results2) {
-              return results2
+              return results2;
             }
           );
         }
