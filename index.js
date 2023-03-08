@@ -3,7 +3,7 @@ const mysql = require('mysql2');
 const cTable = require('console.table');
 
 const roleArr = [];
-const empArr = [];
+let empArr = [];
 
 const db = mysql.createConnection(
   {
@@ -16,6 +16,7 @@ const db = mysql.createConnection(
 );
 
 const start = () => {
+  empArr = [];
   inquirer
     .prompt([
       {
@@ -30,13 +31,14 @@ const start = () => {
           'View All Departments',
           'Add Department',
           'Update Employee Role',
+          'Quit',
         ],
       },
     ])
     .then((answer) => {
       if (answer.start === 'View All Employees') {
         db.query(
-          "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary AS salary, CONCAT(employee.first_name,' ' ,employee.last_name) AS manager FROM employee JOIN role ON role.department_id = employee.id JOIN department ON department.id = role.id",
+          "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary AS salary, CONCAT(manager.first_name,' ' ,manager.last_name) AS manager FROM employee LEFT JOIN role ON employee.role_id =  role.id LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee AS manager ON manager.id = employee.manager_id",
           function (err, results) {
             console.table(results);
             start();
@@ -60,6 +62,10 @@ const start = () => {
         addEmpFirst();
       } else if (answer.start === 'Update Employee Role') {
         updateRole();
+      } else if (answer.start === 'Quit') {
+        console.log('\nHave a great day!!!\n');
+        process.exit();
+
       }
     });
 };
@@ -227,7 +233,7 @@ const selectEmpRole = (name) => {
 
 const getManager = () => {
   db.query(
-    `SELECT first_name, last_name FROM employee WHERE manager_id IS NOT NULL`,
+    `SELECT first_name, last_name FROM employee`,
     function (err, results) {
       const managers = [];
       managers.push('None');
@@ -252,15 +258,21 @@ const selectManager = (manager) => {
     .then((answer) => {
       if (answer.selectManager !== 'None') {
         db.query(
-          `SELECT manager_id FROM employee WHERE first_name="${answer.selectManager}"`,
+          `SELECT * FROM employee WHERE first_name="${answer.selectManager}"`,
           function (err, results) {
-            empArr.push(results[0].manager_id);
+            console.log(results);
+            empArr.push(results[0].id);
             console.log(empArr);
-            let empAdd = `INSERT INTO employee (first_name,last_name,role_id,manager_id) VALUES ("${empArr[0]}","${empArr[1]}","${empArr[2]}","${empArr[3]}")`;
+            let empAdd = `INSERT INTO employee (first_name,last_name,role_id,manager_id) VALUES ("${empArr[0]}","${empArr[1]}",${empArr[2]},${empArr[3]})`;
             db.query(empAdd);
             start();
           }
         );
+      } else {
+        console.log(empArr);
+        let empAdd = `INSERT INTO employee (first_name,last_name,role_id) VALUES ("${empArr[0]}","${empArr[1]}","${empArr[2]}")`;
+        db.query(empAdd);
+        start();
       }
     });
 };
