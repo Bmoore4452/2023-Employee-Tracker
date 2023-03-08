@@ -17,7 +17,7 @@ To run this application the user will need to use the MySQL2 package to connect 
 
 ## Usage
 
-When the user run the command node index.js in the command line they will be presented with a series of prompts. With these prompts, the user will be able veiw all employees, add a new employee, view all of the roles, add a new role, view all departments, add a new department, update an employee's role, or exit the application.
+When the user runs the command `node index.js` in the command line they will be presented with a series of prompts. With these prompts, the user will be able veiw all employees, add a new employee, view all of the roles, add a new role, view all departments, add a new department, update an employee's role, or exit the application.
 
 ## Demo
 
